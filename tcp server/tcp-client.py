@@ -43,10 +43,12 @@ def send_file(file_name, data):
 
     #Let the server know how many packets we are about to send
     send_file_details(s, file_name, packets_expected)
-
+	
+    #log(data_b64)
+	
     i = 0
     count = 0
-    while i < len(data_b64) - MAX_SIZE:
+    while i + MAX_SIZE <= MAX_SIZE * packets_expected:
 
         current_packet = data_b64[i:i + MAX_SIZE]
         s.sendall(current_packet)
@@ -56,7 +58,7 @@ def send_file(file_name, data):
 
         log(i/MAX_SIZE)
         count += 1
-    log(count)
+    #log(count)
     log("All " + str(packets_expected) + " packets sent.")
     s.close()
 
@@ -68,7 +70,7 @@ def send(file_path):
     file_name = file_path.split("/")[-1]
     log("File name extracted as " + file_name)
     send_file(file_name, img_read)
-    log("Message sent!")
+    #log("Message sent!")
 
 
 file_path = input("Full relative path: ")
