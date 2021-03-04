@@ -92,9 +92,9 @@ while True:
             packets = []
 
         #If not packet details, must be part of a file we are recieving
-        elif packets_recieved <= packets_expected:
+        else:
             if packets_recieved%1 == 0:
-                log("Recived: " + str(packets_recieved) + " out of " + str(packets_expected) )
+                log("Recived: " + str(packets_recieved) + " out of " + str(packets_expected) + " size: " +  str(len(data)))
             # print("data", data)
             packets.append(data)
             packets_recieved += 1
