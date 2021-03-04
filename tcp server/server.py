@@ -1,8 +1,9 @@
 import socket
 import base64
+import struct
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.bind(("0.0.0.0", 8888))
+s.bind(('', 8888))
 s.listen(1)
 
 #####
@@ -12,29 +13,10 @@ s.listen(1)
 def log(message):
     print("[Client]: ", message)
 
-def merge_byte_array(data):
-        # output = b''
-        # cnt = 0
-        # for x in arr:
-        #     if cnt%100 == 0:
-        #         log("Merged " + str(cnt) )
-        #     output = b''.join([output, x])
-        #     cnt += 1
-
-
-    output_b = b''.join(data)
-
-    # print(output)
-    # print("ahhh")
-    # print(output_b)
-    # print("ahhhh")
-    # print(output == output_b)
-    return output_b
-
-
 #given a file name, and the bytes for that file, save it
 def bytes_to_file(file_name, packets):
-    packets_to_decode = packets + b'==='
+
+    packets_to_decode = b''.join([packets,b'==='])
     decoded_file = base64.decodebytes(packets_to_decode)
     image_result = open("downloads/" + file_name, 'wb')
     image_result.write(decoded_file)
@@ -42,13 +24,30 @@ def bytes_to_file(file_name, packets):
 
 def data_recieve_complete(file_name, packets):
     log("Merging array into a single byte object.")
-    packets = merge_byte_array(packets)
+    packets = bytes(packets)
     log("Merging complete. Saving file.")
-    # print("raw data")
-    # print(packets)
+
     bytes_to_file(file_name, packets)
     log("File saving complete.")
 
+def recv_msg(sock):
+    # Read message length and unpack it into an integer
+    raw_msglen = recvall(sock, 4)
+    if not raw_msglen:
+        return None
+    msglen = struct.unpack('>I', raw_msglen)[0]
+    # Read the message data
+    return recvall(sock, msglen)
+
+def recvall(sock, n):
+    # Helper function to recv n bytes or return None if EOF is hit
+    data = bytearray()
+    while len(data) < n:
+        packet = sock.recv(n - len(data))
+        if not packet:
+            return None
+        data.extend(packet)
+    return data
 
 #####
 ## MAIN SERVER LOOP
@@ -58,11 +57,11 @@ while True:
 
     packets_expected = 0
     packets_recieved = 0
-    packets = []
+    packets = bytearray()
     file_name = ""
 
     while True:
-        data = conn.recv(4096)
+        data = recv_msg(conn)
 
         # Once all data has been sent
         if not data:
@@ -93,8 +92,8 @@ while True:
 
         #If not packet details, must be part of a file we are recieving
         else:
+            # print("data", data)
+            packets.extend(data)
+            packets_recieved += 1
             if packets_recieved%1 == 0:
                 log("Recived: " + str(packets_recieved) + " out of " + str(packets_expected) + " size: " +  str(len(data)))
-            # print("data", data)
-            packets.append(data)
-            packets_recieved += 1

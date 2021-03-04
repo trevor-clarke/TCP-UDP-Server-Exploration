@@ -2,9 +2,10 @@ import socket
 import base64
 import math
 import time
+import struct
 
 
-UDP_IP = "174.91.123.117"
+UDP_IP = "127.0.0.1"
 UDP_PORT = 8888
 
 MAX_SIZE = 4096
@@ -23,8 +24,12 @@ def send_file_details(s, file_name, packets_expected):
 
         byte_message = message.encode('latin-1')
 
-        s.sendall(byte_message)
+        send_msg(s, byte_message)
 
+def send_msg(sock, msg):
+    # Prefix each message with a 4-byte length (network byte order)
+    msg = struct.pack('>I', len(msg)) + msg
+    sock.sendall(msg)
 
 def send_file(file_name, data):
     log("Starting process. Converting file to Base 64.")
@@ -43,15 +48,15 @@ def send_file(file_name, data):
 
     #Let the server know how many packets we are about to send
     send_file_details(s, file_name, packets_expected)
-	
+
     #log(data_b64)
-	
+
     i = 0
     count = 0
     while i + MAX_SIZE <= MAX_SIZE * packets_expected:
 
         current_packet = data_b64[i:i + MAX_SIZE]
-        s.sendall(current_packet)
+        send_msg(s,current_packet)
 
         # Move the current window over, so we send next chunk of data
         i += MAX_SIZE
