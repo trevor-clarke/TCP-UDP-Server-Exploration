@@ -60,8 +60,8 @@ def send_file(file_name, data):
 
         # Move the current window over, so we send next chunk of data
         i += MAX_SIZE
-
-        log(i/MAX_SIZE)
+        if packets_recieved%max(1,packets_expected/100.0) == 0:
+            log(i/MAX_SIZE)
         count += 1
     #log(count)
     log("All " + str(packets_expected) + " packets sent.")

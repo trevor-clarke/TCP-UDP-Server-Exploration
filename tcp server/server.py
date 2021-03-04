@@ -1,6 +1,7 @@
 import socket
 import base64
 import struct
+import math
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('', 8888))
@@ -95,5 +96,5 @@ while True:
             # print("data", data)
             packets.extend(data)
             packets_recieved += 1
-            if packets_recieved%math.max(1,packets_expected/100) == 0:
+            if packets_recieved%max(1,packets_expected/100.0) == 0:
                 log("Recived: " + str(packets_recieved) + " out of " + str(packets_expected) + " size: " +  str(len(data)))
