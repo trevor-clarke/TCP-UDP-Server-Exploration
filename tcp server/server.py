@@ -95,5 +95,5 @@ while True:
             # print("data", data)
             packets.extend(data)
             packets_recieved += 1
-            if packets_recieved%1 == 0:
+            if packets_recieved%math.max(1,packets_expected/100) == 0:
                 log("Recived: " + str(packets_recieved) + " out of " + str(packets_expected) + " size: " +  str(len(data)))
