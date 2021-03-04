@@ -4,7 +4,7 @@ import math
 import time
 
 
-UDP_IP = "127.0.0.1"
+UDP_IP = "174.91.123.117"
 UDP_PORT = 8888
 
 MAX_SIZE = 4096
@@ -45,7 +45,8 @@ def send_file(file_name, data):
     send_file_details(s, file_name, packets_expected)
 
     i = 0
-    while i <= len(data_b64):
+    count = 0
+    while i < len(data_b64) - MAX_SIZE:
 
         current_packet = data_b64[i:i + MAX_SIZE]
         s.sendall(current_packet)
@@ -54,9 +55,9 @@ def send_file(file_name, data):
         i += MAX_SIZE
 
         log(i/MAX_SIZE)
-
+        count += 1
+    log(count)
     log("All " + str(packets_expected) + " packets sent.")
-
     s.close()
 
 
